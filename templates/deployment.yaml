@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "asp-template-chart.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "asp-template-chart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "asp-template-chart.name" . }}
+    spec:
+      containers:
+        - name: {{ include "asp-template-chart.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          {{- if .Values.env.direct }}
+          env:
+            {{- range .Values.env.direct }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+            {{- if .Values.env.fromSecret.enabled }}
+            {{- range .Values.env.fromSecret.envVars }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.env.fromSecret.secretName }}
+                  key: {{ .key }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+          {{- end }}
+          resources:
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}

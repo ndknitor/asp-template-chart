@@ -1,0 +1,11 @@
+apiVersion: v2
+name: asp-template-chart
+description: A Helm chart for deploying asp-template application
+version: 0.1.0
+appVersion: "1.0.0"
+
+# Create with namespace
+# helm upgrade --install asp-template-release ./ --namespace asp-project --create-namespace
+
+# Output the template
+# helm template ./
